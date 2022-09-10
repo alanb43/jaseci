@@ -1,5 +1,5 @@
-
 node faq_root; // nodes define graph nodes
+
 node faq_state {
     has question; // has is used to define variables / properties
     has answer;
@@ -39,5 +39,25 @@ walker init {
         spawn here --> graph::faq; // creates instance of faq graph & connects its anchor node to here
         // here is the node the walker is currently on
         // here ALWAYS evaluates to the specific node the walker is currently on.
+
+        // walkers can spawn walkers
+        spawn here walker::ask; // allows us to initalize graph & ask question in same motion
+    }
+}
+
+walker ask {
+    has question; // walkers can have variables too
+    // take --> some_node means take the edge to some_node (here == some_node now)
+    root { // root just grabs a question and goes to faq_root
+        question = std.input("AMA > ");
+        take --> node::faq_root; 
+    }
+
+    faq_root { // determines which faq_state to visit based on the question
+        take --> node::faq_state(question==question);
+    }
+
+    faq_state { // simply prints answer
+        std.out(here.answer);
     }
 }
