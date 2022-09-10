@@ -5,6 +5,7 @@ node faq_state {
     has answer;
 }
 
+// every graph has a root node that you don't have to define (we don't here)
 graph faq {
     has anchor faq_root; // anchors are returned when a graph is spawned
     // anchors are needed for every graph, must be assigned within spawn block
@@ -24,10 +25,19 @@ graph faq {
             question="Can I request a test drive",
             answer="Yes. You must be a minimum of 25 years of age."
         );
-        // Connecting the nodes together
+        // Connecting the nodes together to the faq_root
         faq_root --> faq_answer_1;
         faq_root --> faq_answer_2;
         faq_root --> faq_answer_3;
 
+    }
+}
+
+// walker can be used on any node, will default to root node if none specified
+walker init {
+    root { // code inside this will only run on the root node (the one we didn't have to define)
+        spawn here --> graph::faq; // creates instance of faq graph & connects its anchor node to here
+        // here is the node the walker is currently on
+        // here ALWAYS evaluates to the specific node the walker is currently on.
     }
 }
