@@ -449,7 +449,7 @@ And that is what we are going to build in this section -- a multi-turn action-or
 
 > **Warning**
 >
-> Start a new jac file (`dialogue.jac`) before moving fowrard. We will keep this program separate from the FAQ one we built. But, KEEP the FAQ jac file around, we will integrate these two systems into one unified conversational AI system later.
+> Start a new jac file (`dialogue.jac`) before moving forward. We will keep this program separate from the FAQ one we built. But, KEEP the FAQ jac file around, we will integrate these two systems into one unified conversational AI system later.
 
 ## State Graph
 Let's first go over the graph architecture for the dialogue system.
