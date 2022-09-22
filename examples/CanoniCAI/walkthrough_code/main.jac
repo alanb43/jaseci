@@ -50,7 +50,7 @@ walker ask {
     has question; // walkers can have variables too
     // take --> some_node means take the edge to some_node (here == some_node now)
     root { // root just grabs a question and goes to faq_root
-        question = std.input("AMA > ");
+        question = std.input(">");
         take --> node::faq_root; 
     }
 
@@ -60,7 +60,7 @@ walker ask {
             text = question,
             classes = answers
         );
-        take --> node::faq_state(question==question);
+        take --> node::faq_state(answer==best_answer["match"]);
     }
 
     faq_state { // simply prints answer
@@ -77,5 +77,13 @@ walker ingest_faq {
             answer = faq["answer"];
             spawn here --> node::faq_state(answer=answer);
         }
+    }
+}
+
+walker init {
+    root {
+        spawn here --> node::faq_root;
+        spawn here walker::ingest_faq(kb_file="tesla_faq.json");
+        spawn here walker::ask;
     }
 }
