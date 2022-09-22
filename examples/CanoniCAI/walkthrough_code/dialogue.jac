@@ -24,7 +24,32 @@ graph dialogue_system {
             response = "You can order a Tesla through our design studio."
         );
 
+        // Connect root to different states with custom edge of type intent_transition
+        // this is how you use custom edges (syntactically)
         dialogue_root -[intent_transition(intent="test drive")]-> test_drive_state;
         dialogue_root -[intent_transition(intent="order a tesla")]-> how_to_order_state;
+    }
+}
+
+walker init {
+    root {
+        spawn here --> graph::dialogue_system;
+        spawn here walker::talk;
+    }
+}
+
+walker talk {
+    has question;
+    root {
+        question = std.input("> ");
+        take --> node:: dialogue_root;
+    }
+
+    dialogue_root {
+        take -[intent_transition(intent==question)]-> node::dialogue_state;
+    }
+
+    dialogue_state {
+        std.out(here.response);
     }
 }
