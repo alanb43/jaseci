@@ -40,13 +40,26 @@ walker init {
 
 walker talk {
     has question;
+    can bi_enc.infer;
     root {
         question = std.input("> ");
         take --> node:: dialogue_root;
     }
 
     dialogue_root {
-        take -[intent_transition(intent==question)]-> node::dialogue_state;
+        // collects the intent of variables of outgoing intent_transition edges
+        // represents list of candidate labels for this state
+        intent_labels = -[intent_transition]->.edge.intent;
+        
+        //  use bi_enc model to infer label based on question and candidate labels
+        predicted_intent = bi_enc.infer(
+            contexts = [question],
+            candidates = intent_labels,
+            context_type = "text",
+            candidate_type = "text"
+        )[0]["predicted"]["label"];
+
+        take -[intent_transition(intent==predicted_intent)]-> node::dialogue_state;
     }
 
     dialogue_state {
