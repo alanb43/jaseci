@@ -114,32 +114,61 @@ walker init {
     }
 }
 
+// walker talk {
+//     has question;
+//     can bi_enc.infer;
+//     root {
+//         question = std.input("> ");
+//         take --> node:: dialogue_root;
+//     }
+
+//     dialogue_root {
+//         // collects the intent of variables of outgoing intent_transition edges
+//         // represents list of candidate labels for this state
+//         intent_labels = -[intent_transition]->.edge.intent;
+        
+//         //  use bi_enc model to infer label based on question and candidate labels
+//         predicted_intent = bi_enc.infer(
+//             contexts = [question],
+//             candidates = intent_labels,
+//             context_type = "text",
+//             candidate_type = "text"
+//         )[0]["predicted"]["label"];
+
+//         take -[intent_transition(intent==predicted_intent)]-> node::dialogue_state;
+//     }
+
+//     dialogue_state {
+//         std.out(here.response);
+//     }
+// }
+
 walker talk {
     has question;
-    can bi_enc.infer;
+    has wlk_ctx = {};
+    has response;
     root {
-        question = std.input("> ");
-        take --> node:: dialogue_root;
+        take --> node::dialogue_root;
     }
-
-    dialogue_root {
-        // collects the intent of variables of outgoing intent_transition edges
-        // represents list of candidate labels for this state
-        intent_labels = -[intent_transition]->.edge.intent;
-        
-        //  use bi_enc model to infer label based on question and candidate labels
-        predicted_intent = bi_enc.infer(
-            contexts = [question],
-            candidates = intent_labels,
-            context_type = "text",
-            candidate_type = "text"
-        )[0]["predicted"]["label"];
-
-        take -[intent_transition(intent==predicted_intent)]-> node::dialogue_state;
-    }
-
     dialogue_state {
-        std.out(here.response);
+        if (!question) {
+            question = std.input("Question (Ctrl-C to exit)> ");
+            here::init_wlk_ctx;
+        }
+        here::nlu; // invokes node ability to identify intent and/or extract entities
+        // based on results of above, will traverse dialogue state graph to a new dialogue state
+        here::process;
+        // if the walker can not make any state traversal anymore (take ... else {}), 
+        // it will construct a response (here::nlg) using the information it has gathered so far 
+        // (the walker's context) and return that response to the user.
+        if (visitor.wlk_ctx["respond"]) {
+            here::nlg; // invokes node abilities
+            std.out(response);
+            question = null;
+            take here;
+        } else {
+            take visitor.wlk_ctx["next_state"] else: take here;
+        }
     }
 }
 
