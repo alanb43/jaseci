@@ -47,10 +47,10 @@ node dialogue_state {
 
         if ("entities" in visitor.wlk_ctx) {
             // Carry over extracted entities from previous interaction
-            new_wlk_ctx = ["entities"] = visitor.wlk_ctx["entities"];
+            new_wlk_ctx["entities"] = visitor.wlk_ctx["entities"];
         }
 
-        visor.wlk_ctx = new_wlk_ctx;
+        visitor.wlk_ctx = new_wlk_ctx;
     }
 
     can nlu {}
